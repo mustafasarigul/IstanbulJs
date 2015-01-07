@@ -1,0 +1,58 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>BlackBox.js • TodoMVC</title>
+    <script src="https://code.jquery.com/jquery-2.0.3.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+    <script src="../Scripts/blackBox.binding-1.0.0.js"></script>
+    <script src="../Scripts/ToDoMVC.js"></script>
+    <link href="../Content/base.css" rel="stylesheet" />
+</head>
+<body>
+    <section id="todoapp">
+        <header id="header">
+            <h1>todos</h1>
+            <input id="new-todo" data-bind-value="$root.current" data-bind-key="[{handler: $root.add, x:13}]" placeholder=" what needs to be done?" autofocus>
+        </header>
+        <section id="main" data-bind-visible="$root.bodyVisibility">
+            <input id="toggle-all" data-bind-checked="$root.allCompleted" type="checkbox">
+            <label for="toggle-all">Mark all as complete</label>
+            <ul id="todo-list" data-bind-each="$root.filteredTodos">
+                <li data-bind-css="[{ name:'completed', value:$data.completed},{name:'editing', value:$data.editing }]">
+                    <div class="view">
+                        <input class="toggle" data-bind-checked="$data.completed" type="checkbox">
+                        <label data-bind-text="$data.title" data-bind-events="[{name:'dblclick', handler:$root.editItem}]"></label>
+                        <button class="destroy" data-bind-click="$root.remove"></button>
+                    </div>
+
+                    <input class="edit" data-bind-value="$data.title" data-bind-key="[{handler: $root.stopEditing, x:13}]" data-bind-events="[{name:'blur', handler:$root.stopEditing, args:$data}]">
+                </li>
+            </ul>
+        </section>
+        <footer id="footer" data-bind-visible="$root.footerVisibility">
+            <span id="todo-count">
+                <strong data-bind-text="$root.remainingCount">0</strong> item(s) left
+            </span>
+            <ul id="filters">
+                <li>
+                    <a data-bind-css="[{ name:'selected', value:$root.allMode }]" data-bind-click="$root.showAllItems" href="#">All</a>
+                </li>
+                <li>
+                    <a data-bind-css="[{ name:'selected', value:$root.activeMode }]" data-bind-click="$root.showActiveItems" href="#">Active</a>
+                </li>
+                <li>
+                    <a data-bind-css="[{ name:'selected', value: $root.completedMode }]" data-bind-click="$root.showCompletedItems" href="#">Completed</a>
+                </li>
+            </ul>
+            <button id="clear-completed" data-bind-visible="$root.completedCount" data-bind-click="$root.removeCompleted">
+                Clear completed (<span data-bind-text="$root.completedCount"></span>)
+            </button>
+        </footer>
+    </section>
+    <footer id="info">
+        <p>Double-click to edit a todo</p>
+        <p>Written by <a href="https://github.com/msarigul/blackboxjs-todos">Mustafa Sarıgül</a></p>
+    </footer>
+</body>
+</html>
