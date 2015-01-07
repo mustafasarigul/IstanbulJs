@@ -67,7 +67,7 @@
   <ItemGroup>
     <Content Include="Content\base.css" />
     <Content Include="Pages\ToDoMVC.html" />
-    <Content Include="Scripts\blackBox.binding-1.0.0.js" />
+    <Content Include="Scripts\istanbuljs-0.8.0.js" />
     <Content Include="Scripts\ToDoMVC.js" />
     <Content Include="Web.config" />
   </ItemGroup>
