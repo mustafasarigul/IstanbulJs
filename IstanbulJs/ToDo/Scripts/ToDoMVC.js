@@ -9,11 +9,7 @@ var ViewModel = function () {
     this.current = bb.property();
     this.todos = bb.array([]);
     this.allCompleted = bb.property(false);
-    this.allMode = bb.property(true);
-    this.activeMode = bb.property(false);
-    this.completedMode = bb.property(false);
     this.mode = bb.property('all');
-
     this.editing = bb.property(false);
 
     this.add = function () {
@@ -41,24 +37,17 @@ var ViewModel = function () {
         }).length;
     }
 
-    this.getFilteredTodos = function (mode) {
-        self.activeMode(false);
-        self.allMode(false);
-        self.completedMode(false);
-        self.mode(mode);
-        switch (mode) {
+    this.getFilteredTodos = function () {
+        switch (self.mode()) {
             case 'active':
-                self.activeMode(true);
                 return self.todos().filter(function (todo) {
                     return !todo.completed();
                 });
             case 'completed':
-                self.completedMode(true);
                 return self.todos().filter(function (todo) {
                     return todo.completed();
                 });
             default:
-                self.allMode(true);
                 return self.todos();
         }
     }
@@ -68,7 +57,7 @@ var ViewModel = function () {
             if (self.todos()[i].completed())
                 self.todos().remove(self.todos()[i]);
         }
-        //self.filteredTodos(self.getFilteredTodos('all'));
+        self.filteredTodos.pub(self.getFilteredTodos());
     };
 
     this.stopEditing = function (item) {
@@ -107,22 +96,37 @@ var ViewModel = function () {
     };
 
     this.showAllItems = function () {
+        self.mode('all');
         self.allMode(true);
-        //self.filteredTodos(self.getFilteredTodos('all'));
+        self.filteredTodos.pub(self.getFilteredTodos());
     };
 
     this.showActiveItems = function () {
+        self.mode('active');
         self.activeMode(true);
-        //self.filteredTodos(self.getFilteredTodos('active'));
+        self.filteredTodos.pub(self.getFilteredTodos());
     };
 
     this.showCompletedItems = function () {
         self.completedMode(true);
-        //self.filteredTodos(self.getFilteredTodos('completed'));
+        self.mode('completed');
+        self.filteredTodos.pub(self.getFilteredTodos());
     };
 
     this.filteredTodos = bb.calculated([this.todos], function () {
         return self.todos();
+    });
+
+    this.allMode = bb.calculated([this.mode],function() {
+        return self.mode() == 'all';
+    });
+
+    this.activeMode = bb.calculated([this.mode], function () {
+        return self.mode() == 'active';
+    });
+
+    this.completedMode = bb.calculated([this.mode], function () {
+        return self.mode() == 'completed';
     });
 };
 
