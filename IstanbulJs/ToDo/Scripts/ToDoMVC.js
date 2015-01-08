@@ -21,8 +21,8 @@ var ViewModel = function () {
         self.current('');
     };
 
-    this.allCompleted.watch(function(value) {
-        for (var i = 0; i < self.todos().length; i++) 
+    this.allCompleted.watch(function (value) {
+        for (var i = 0; i < self.todos().length; i++)
             self.todos()[i].completed(value);
     });
 
@@ -38,18 +38,16 @@ var ViewModel = function () {
     }
 
     this.getFilteredTodos = function () {
-        switch (self.mode()) {
-            case 'active':
-                return self.todos().filter(function (todo) {
-                    return !todo.completed();
-                });
-            case 'completed':
-                return self.todos().filter(function (todo) {
-                    return todo.completed();
-                });
-            default:
-                return self.todos();
-        }
+        if (self.allMode())
+            return self.todos().filter(function (todo) {
+                return !todo.completed();
+            });
+        else if (self.completedMode())
+            return self.todos().filter(function (todo) {
+                return todo.completed();
+            });
+        else
+            return self.todos();
     }
 
     this.removeCompleted = function () {
@@ -117,7 +115,7 @@ var ViewModel = function () {
         return self.todos();
     });
 
-    this.allMode = bb.calculated([this.mode],function() {
+    this.allMode = bb.calculated([this.mode], function () {
         return self.mode() == 'all';
     });
 
@@ -145,5 +143,5 @@ $(function () {
     });
 
     var vm = new ViewModel();
-    bb.bind( document.getElementById("todoapp"), vm);
+    bb.bind(document.getElementById("todoapp"), vm);
 });
