@@ -2,9 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>BlackBox.js • TodoMVC</title>
+    <title>Istanbul.js • TodoMVC</title>
     <script src="https://code.jquery.com/jquery-2.0.3.min.js"></script>
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
     <script src="../../src/istanbuljs-0.8.0.js"></script>
     <script src="../Scripts/ToDoMVC.js"></script>
     <link href="../Content/base.css" rel="stylesheet" />
@@ -25,7 +24,6 @@
                         <label data-bind-text="$data.title" data-bind-events="[{name:'dblclick', handler:$root.editItem}]"></label>
                         <button class="destroy" data-bind-click="$root.remove"></button>
                     </div>
-
                     <input class="edit" data-bind-value="$data.title" data-bind-key="[{handler: $root.stopEditing, x:13}]" data-bind-events="[{name:'blur', handler:$root.stopEditing, args:$data}]">
                 </li>
             </ul>
@@ -52,7 +50,7 @@
     </section>
     <footer id="info">
         <p>Double-click to edit a todo</p>
-        <p>Written by <a href="https://github.com/msarigul/blackboxjs-todos">Mustafa Sarıgül</a></p>
+        <p>Written by <a href="http://mustafasarigul.github.io/IstanbulJs">Mustafa Sarıgül</a></p>
     </footer>
 </body>
 </html>

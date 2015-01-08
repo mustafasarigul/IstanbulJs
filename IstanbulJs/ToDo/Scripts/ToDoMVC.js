@@ -38,7 +38,7 @@ var ViewModel = function () {
     }
 
     this.getFilteredTodos = function () {
-        if (self.allMode())
+        if (self.activeMode())
             return self.todos().filter(function (todo) {
                 return !todo.completed();
             });
@@ -112,7 +112,7 @@ var ViewModel = function () {
     };
 
     this.filteredTodos = bb.calculated([this.todos], function () {
-        return self.todos();
+        return self.getFilteredTodos();
     });
 
     this.allMode = bb.calculated([this.mode], function () {

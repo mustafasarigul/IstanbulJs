@@ -64,13 +64,13 @@
             childElement = $(bb.templateManager.get(templateId).content);
             if (childElement == null) continue;
 
-            var dispose = data[d].status == 0 || data[d].status == null;
+            var dispose = data[d].status == 1;
             findBindings(childElement[0], { $root: scope.$root, $data: data[d] }, dispose);
 
             if (dispose)
-                element.append(childElement);
-            else
                 childElement.remove();
+            else
+                element.append(childElement);
         }
     };
 
