@@ -1,16 +1,16 @@
 ﻿var Todo = function (title, completed) {
-    this.title = bb.property(title);
-    this.completed = bb.property(completed);
-    this.editing = bb.property(false);
+    this.title = ist.property(title);
+    this.completed = ist.property(completed);
+    this.editing = ist.property(false);
 };
 
 var ViewModel = function () {
     var self = this;
-    this.current = bb.property();
-    this.todos = bb.array([]);
-    this.allCompleted = bb.property(false);
-    this.mode = bb.property('all');
-    this.editing = bb.property(false);
+    this.current = ist.property();
+    this.todos = ist.array([]);
+    this.allCompleted = ist.property(false);
+    this.mode = ist.property('all');
+    this.editing = ist.property(false);
 
     this.add = function () {
         var t = new Todo(self.current(), false);
@@ -73,19 +73,19 @@ var ViewModel = function () {
         }
     };
 
-    self.completedCount = bb.calculated([self.todos], function () {
+    self.completedCount = ist.calculated([self.todos], function () {
         return self.getCompletedCount();
     });
 
-    self.remainingCount = bb.calculated([self.todos, self.completedCount], function () {
+    self.remainingCount = ist.calculated([self.todos, self.completedCount], function () {
         return self.todos().length - self.completedCount();
     });
 
-    self.footerVisibility = bb.calculated([self.completedCount, self.remainingCount], function () {
+    self.footerVisibility = ist.calculated([self.completedCount, self.remainingCount], function () {
         return self.getCompletedCount() || self.remainingCount();
     });
 
-    self.bodyVisibility = bb.calculated([self.todos], function () {
+    self.bodyVisibility = ist.calculated([self.todos], function () {
         return self.todos().length > 0;
     });
 
@@ -111,25 +111,25 @@ var ViewModel = function () {
         self.filteredTodos.pub(self.getFilteredTodos());
     };
 
-    this.filteredTodos = bb.calculated([this.todos], function () {
+    this.filteredTodos = ist.calculated([this.todos], function () {
         return self.getFilteredTodos();
     });
 
-    this.allMode = bb.calculated([this.mode], function () {
+    this.allMode = ist.calculated([this.mode], function () {
         return self.mode() == 'all';
     });
 
-    this.activeMode = bb.calculated([this.mode], function () {
+    this.activeMode = ist.calculated([this.mode], function () {
         return self.mode() == 'active';
     });
 
-    this.completedMode = bb.calculated([this.mode], function () {
+    this.completedMode = ist.calculated([this.mode], function () {
         return self.mode() == 'completed';
     });
 };
 
 $(function () {
-    bb.handlerManager.register('key', {
+    ist.handlerManager.register('key', {
         init: function (element, scope, data) {
             for (var i = 0; i < data.length; i++) {
                 (function (d) {
@@ -143,5 +143,5 @@ $(function () {
     });
 
     var vm = new ViewModel();
-    bb.bind(document.getElementById("todoapp"), vm);
+    ist.bind(vm);
 });

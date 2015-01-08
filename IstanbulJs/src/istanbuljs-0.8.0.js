@@ -1,8 +1,8 @@
 ﻿(function () {
-    window.bb = { defaults: { attributePrefix: 'data-bind-', changeEvent: 'keyup', elementAttributeName: 'bb_Id' } };
+    window.ist = { defaults: { attributePrefix: 'data-bind-', changeEvent: 'keyup', elementAttributeName: 'ist_Id' } };
     var templates = [], uniqueId = 0;
 
-    bb.templateManager = {
+    ist.templateManager = {
         register: function (element) {
             var id = ++uniqueId;
             var content = element.html();
@@ -28,25 +28,25 @@
         var values;
         if (currentNode.attributes && currentNode.attributes.length > 0) {
             for (var i = 0; i < currentNode.attributes.length; i++) {
-                if (currentNode.attributes[i].localName.indexOf(bb.defaults.attributePrefix) == -1) continue;
-                if (currentNode.attributes[i].localName == bb.defaults.attributePrefix + 'using') {
+                if (currentNode.attributes[i].localName.indexOf(ist.defaults.attributePrefix) == -1) continue;
+                if (currentNode.attributes[i].localName == ist.defaults.attributePrefix + 'using') {
                     values = getContext(scope, currentNode.attributes[i].nodeValue);
-                    bb.handlerManager.get('using').manager.init($(currentNode), scope, values, bb.templateManager.register($(currentNode)));
+                    ist.handlerManager.get('using').manager.init($(currentNode), scope, values, ist.templateManager.register($(currentNode)));
                     currentNode = currentNode.nextSibling;
                     break;
                 }
-                if (currentNode.attributes[i].localName == bb.defaults.attributePrefix + 'each') {
+                if (currentNode.attributes[i].localName == ist.defaults.attributePrefix + 'each') {
                     values = getContext(scope, currentNode.attributes[i].nodeValue);
-                    bb.handlerManager.get('each').manager.init($(currentNode), scope, values, bb.templateManager.register($(currentNode)));
+                    ist.handlerManager.get('each').manager.init($(currentNode), scope, values, ist.templateManager.register($(currentNode)));
                     currentNode = currentNode.nextSibling;
                     break;
                 }
                 else {
-                    var handler = bb.handlerManager.get(currentNode.attributes[i].localName.replace(bb.defaults.attributePrefix, ''));
+                    var handler = ist.handlerManager.get(currentNode.attributes[i].localName.replace(ist.defaults.attributePrefix, ''));
                     if (dispose)
-                        bb.handlerManager.dispose($(currentNode), scope, handler, currentNode.attributes[i].nodeValue);
+                        ist.handlerManager.dispose($(currentNode), scope, handler, currentNode.attributes[i].nodeValue);
                     else
-                        bb.handlerManager.init($(currentNode), scope, handler, currentNode.attributes[i].nodeValue);
+                        ist.handlerManager.init($(currentNode), scope, handler, currentNode.attributes[i].nodeValue);
                 }
             }
         }
@@ -61,7 +61,7 @@
         var childElement;
         if (data == null) return;
         for (var d = 0; d < data.length; d++) {
-            childElement = $(bb.templateManager.get(templateId).content);
+            childElement = $(ist.templateManager.get(templateId).content);
             if (childElement == null) continue;
 
             var dispose = data[d].status == 1;
@@ -85,7 +85,7 @@
 
     function createComboItems(element, items, textPropertyName) {
         for (var i = 0; i < items.length; i++) {
-            var text = bb.utils.unwrapWatchable(items[i][textPropertyName]);
+            var text = ist.utils.unwrapWatchable(items[i][textPropertyName]);
             element.append(new Option(text, i));
         }
     };
@@ -103,11 +103,11 @@
                     break;
                 case "function":
                     if (value.$t == 0) {
-                        value = bb.utils.unwrapWatchable(obj[attr]);
+                        value = ist.utils.unwrapWatchable(obj[attr]);
                         copy[attr] = clone(value);
                     }
                     else if (value.$t == 1) {
-                        value = bb.utils.unwrapWatchable(obj[attr]);
+                        value = ist.utils.unwrapWatchable(obj[attr]);
                         copy[attr] = [];
                         for (var i = 0; i < value.length; i++) {
                             copy[attr].push(clone(value[i]));
@@ -132,16 +132,16 @@
         return copy;
     };
 
-    bb.bind = function (element, rootContext) {
-        findBindings(element, { $root: rootContext });
+    ist.bind = function (rootContext, element) {
+        findBindings(element || window.document.body, { $root: rootContext });
     }
 
-    bb.handlerManager = {
+    ist.handlerManager = {
         register: function (name, handler) {
-            bb.handlerManager[name] = { name: name, manager: handler };
+            ist.handlerManager[name] = { name: name, manager: handler };
         },
         get: function (name) {
-            return bb.handlerManager[name];
+            return ist.handlerManager[name];
         },
         init: function (element, scope, handler, bindingStatement) {
             var value = getContext(scope, bindingStatement);
@@ -152,17 +152,17 @@
         }
     };
 
-    bb.handlerManager.register('using', {
+    ist.handlerManager.register('using', {
         init: function (element, scope, data, templateId) {
-            var childElement = $(bb.templateManager.get(templateId).content);
+            var childElement = $(ist.templateManager.get(templateId).content);
             if (childElement == null) return;
 
-            var oData = bb.utils.unwrapWatchable(data);
+            var oData = ist.utils.unwrapWatchable(data);
 
             if (oData)
                 createElementForUsing(element, childElement, { $root: scope.$root, $data: oData });
 
-            if (bb.utils.isWatchable(data)) {
+            if (ist.utils.isWatchable(data)) {
                 data.watch(function (newValue, oldValue) {
                     if (newValue)
                         createElementForUsing(element, childElement, { $root: scope.$root, $data: newValue });
@@ -177,10 +177,10 @@
         }
     });
 
-    bb.handlerManager.register('text', {
+    ist.handlerManager.register('text', {
         init: function (element, scope, data) {
-            element.text(bb.utils.unwrapWatchable(data));
-            if (bb.utils.isWatchable(data)) {
+            element.text(ist.utils.unwrapWatchable(data));
+            if (ist.utils.isWatchable(data)) {
                 data.watch(function (newValue, oldValue) {
                     element.text(newValue);
                 }, 2);
@@ -191,16 +191,16 @@
         }
     });
 
-    bb.handlerManager.register('value', {
+    ist.handlerManager.register('value', {
         init: function (element, scope, data) {
             var selfCall = false;
-            element.val(bb.utils.unwrapWatchable(data));
-            element.on(bb.defaults.changeEvent, (function () {
+            element.val(ist.utils.unwrapWatchable(data));
+            element.on(ist.defaults.changeEvent, (function () {
                 selfCall = true;
                 data($(this).val());
             }));
 
-            if (bb.utils.isWatchable(data))
+            if (ist.utils.isWatchable(data))
                 data.watch(function (newValue, oldValue) {
                     if (selfCall) {
                         selfCall = false;
@@ -215,10 +215,10 @@
         }
     });
 
-    bb.handlerManager.register('visible', {
+    ist.handlerManager.register('visible', {
         init: function (element, scope, data) {
-            element.css("display", bb.utils.unwrapWatchable(data) ? "block" : "none");
-            if (!bb.utils.isWatchable(data)) return;
+            element.css("display", ist.utils.unwrapWatchable(data) ? "block" : "none");
+            if (!ist.utils.isWatchable(data)) return;
             data.watch(function (newValue, oldValue) {
                 element.css("display", newValue ? "block" : "none");
             }, 2);
@@ -229,17 +229,17 @@
         }
     });
 
-    bb.handlerManager.register('css', {
+    ist.handlerManager.register('css', {
         init: function (element, scope, data, status) {
             for (var i = 0; i < data.length; i++) {
-                var className = bb.utils.unwrapWatchable(data[i].name);
+                var className = ist.utils.unwrapWatchable(data[i].name);
 
-                if (bb.utils.unwrapWatchable(data[i].value))
+                if (ist.utils.unwrapWatchable(data[i].value))
                     element.addClass(className);
                 else
                     element.removeClass(className);
 
-                if (!bb.utils.isWatchable(data[i].value)) continue;
+                if (!ist.utils.isWatchable(data[i].value)) continue;
                 if (status == 1) {
                     data[i].value.unWatch();
                     element.off();
@@ -258,10 +258,10 @@
         }
     });
 
-    bb.handlerManager.register('checked', {
+    ist.handlerManager.register('checked', {
         init: function (element, scope, data) {
             var selfCall = false;
-            element.prop('checked', bb.utils.unwrapWatchable(data));
+            element.prop('checked', ist.utils.unwrapWatchable(data));
 
             element.change(function () {
                 selfCall = true;
@@ -282,7 +282,7 @@
         }
     });
 
-    bb.handlerManager.register('events', {
+    ist.handlerManager.register('events', {
         init: function (element, scope, data) {
             for (var i = 0; i < data.length; i++)
                 element.on(data[i].name, scope.$data, data[i].handler);
@@ -292,7 +292,7 @@
         }
     });
 
-    bb.handlerManager.register('click', {
+    ist.handlerManager.register('click', {
         init: function (element, scope, data) {
             if (!($._data(element[0], "events") && $._data(element[0], "events")["click"])) {
                 element.on('click', function () {
@@ -305,21 +305,21 @@
         }
     });
 
-    bb.handlerManager.register('combobox', {
+    ist.handlerManager.register('combobox', {
         init: function (element, scope, data) {
-            var items = bb.utils.unwrapWatchable(data.source);
+            var items = ist.utils.unwrapWatchable(data.source);
 
             if (data.caption)
-                element.append(new Option(bb.utils.unwrapWatchable(data.caption), null));
+                element.append(new Option(ist.utils.unwrapWatchable(data.caption), null));
             createComboItems(element, items, data.text);
 
-            if (bb.utils.isWatchable(data.source))
+            if (ist.utils.isWatchable(data.source))
                 data.source.watch(function (newValue, oldValue) {
                     element.empty();
                     createComboItems(element, items, data.text);
                 }, 2);
 
-            if (bb.utils.isWatchable(data.value)) {
+            if (ist.utils.isWatchable(data.value)) {
                 element.change(function () {
                     var itemId = $(this).val();
                     data.value(itemId == null ? null : items[itemId]);
@@ -331,9 +331,9 @@
         }
     });
 
-    bb.handlerManager.register('each', {
+    ist.handlerManager.register('each', {
         init: function (element, scope, data, templateId) {
-            var oData = bb.utils.unwrapWatchable(data);
+            var oData = ist.utils.unwrapWatchable(data);
             if (oData.length > 0)
                 createElementForEach(element, oData, scope, templateId);
             if (Array.isArray(oData)) {
@@ -353,7 +353,7 @@
         }
     });
 
-    bb.utils = {
+    ist.utils = {
         unwrapWatchable: function (value) {
             return typeof value === "function" ? value() : value;
         },
@@ -362,7 +362,7 @@
             return typeof value.watch != 'undefined';
         },
         isArrayable: function (value) {
-            return (bb.utils.unwrapWatchable(value)) instanceof Array;
+            return (ist.utils.unwrapWatchable(value)) instanceof Array;
         },
         toJS: function (obj) {
             return clone(obj);
@@ -372,7 +372,7 @@
         }
     };
 
-    bb.watchable = function () {
+    ist.watchable = function () {
         this._subscribers = [];
         this.watch = function (event, type) {
             this._subscribers.push({ type: type, event: event });
@@ -394,15 +394,15 @@
         }
     }
 
-    bb.calculated = function (props, handler) {
+    ist.calculated = function (props, handler) {
         $.each(props, function () {
             this.watch(handler, 1);
         });
-        bb.watchable.call(handler);
+        ist.watchable.call(handler);
         return handler;
     };
 
-    bb.array = function (initialValue) {
+    ist.array = function (initialValue) {
         var lValue = initialValue;
         function array() {
             if (arguments.length == 0)
@@ -415,7 +415,7 @@
         }
         array.$t = 1;
         array.add = function (item) {
-            item[bb.defaults.elementAttributeName] = ++uniqueId;
+            item[ist.defaults.elementAttributeName] = ++uniqueId;
             this().push(item);
             item.status = 0;
             this.pub(item, null);
@@ -427,11 +427,11 @@
             this.pub(item, null);
         }
 
-        bb.watchable.call(array);
+        ist.watchable.call(array);
         return array;
     };
 
-    bb.property = function (initialValue) {
+    ist.property = function (initialValue) {
         var lValue = initialValue;
         function property() {
             if (arguments.length == 0)
@@ -445,7 +445,7 @@
                 return this;
             }
         }
-        bb.watchable.call(property);
+        ist.watchable.call(property);
         property.$t = 0;
         return property;
     };
