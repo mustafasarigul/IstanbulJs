@@ -12,45 +12,45 @@
     <section id="todoapp">
         <header id="header">
             <h1>todos</h1>
-            <input id="new-todo" data-bind-value="$root.current" data-bind-key="[{handler: $root.add, x:13}]" placeholder=" what needs to be done?" autofocus>
+            <input id="new-todo" data-bind-value="current" data-bind-key="[{handler: add, x:13}]" placeholder=" what needs to be done?" autofocus>
         </header>
-        <section id="main" data-bind-visible="$root.bodyVisibility">
-            <input id="toggle-all" data-bind-checked="$root.allCompleted" type="checkbox">
+        <section id="main" data-bind-visible="bodyVisibility">
+            <input id="toggle-all" data-bind-checked="allCompleted" type="checkbox">
             <label for="toggle-all">Mark all as complete</label>
-            <ul id="todo-list" data-bind-each="$root.filteredTodos">
-                <li data-bind-css="[{ name:'completed', value:$data.completed},{name:'editing', value:$data.editing }]">
+            <ul id="todo-list" data-bind-each="filteredTodos">
+                <li data-bind-css="[{ name:'completed', value:completed},{name:'editing', value:editing }]">
                     <div class="view">
-                        <input class="toggle" data-bind-checked="$data.completed" type="checkbox">
-                        <label data-bind-text="$data.title" data-bind-events="[{name:'dblclick', handler:$root.editItem}]"></label>
-                        <button class="destroy" data-bind-click="$root.remove"></button>
+                        <input class="toggle" data-bind-checked="completed" type="checkbox">
+                        <label data-bind-text="title" data-bind-events="[{name:'dblclick', handler:editItem}]"></label>
+                        <button class="destroy" data-bind-click="remove"></button>
                     </div>
-                    <input class="edit" data-bind-value="$data.title" data-bind-key="[{handler: $root.stopEditing, x:13}]" data-bind-events="[{name:'blur', handler:$root.stopEditing, args:$data}]">
+                    <input class="edit" data-bind-value="title" data-bind-key="[{handler: stopEditing, x:13}]" data-bind-events="[{name:'blur', handler:stopEditing, args:$data}]">
                 </li>
             </ul>
         </section>
-        <footer id="footer" data-bind-visible="$root.footerVisibility">
+        <footer id="footer" data-bind-visible="footerVisibility">
             <span id="todo-count">
-                <strong data-bind-text="$root.remainingCount">0</strong> item(s) left
+                <strong data-bind-text="remainingCount">0</strong> item(s) left
             </span>
             <ul id="filters">
                 <li>
-                    <a data-bind-css="[{ name:'selected', value:$root.allMode }]" data-bind-click="$root.showAllItems" href="#">All</a>
+                    <a data-bind-css="[{ name:'selected', value:allMode }]" data-bind-click="showAllItems" href="#">All</a>
                 </li>
                 <li>
-                    <a data-bind-css="[{ name:'selected', value:$root.activeMode }]" data-bind-click="$root.showActiveItems" href="#">Active</a>
+                    <a data-bind-css="[{ name:'selected', value:activeMode }]" data-bind-click="showActiveItems" href="#">Active</a>
                 </li>
                 <li>
-                    <a data-bind-css="[{ name:'selected', value: $root.completedMode }]" data-bind-click="$root.showCompletedItems" href="#">Completed</a>
+                    <a data-bind-css="[{ name:'selected', value: completedMode }]" data-bind-click="showCompletedItems" href="#">Completed</a>
                 </li>
             </ul>
-            <button id="clear-completed" data-bind-visible="$root.completedCount" data-bind-click="$root.removeCompleted">
-                Clear completed (<span data-bind-text="$root.completedCount"></span>)
+            <button id="clear-completed" data-bind-visible="completedCount" data-bind-click="removeCompleted">
+                Clear completed (<span data-bind-text="completedCount"></span>)
             </button>
         </footer>
     </section>
     <footer id="info">
         <p>Double-click to edit a todo</p>
-        <p>Written by <a href="http://mustafasarigul.github.io/IstanbulJs">Mustafa Sarıgül</a></p>
+        <p>Written by <a href="http://www.istanbuljs.com">Mustafa Sarıgül</a></p>
     </footer>
 </body>
 </html>

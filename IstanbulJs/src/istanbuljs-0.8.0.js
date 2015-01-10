@@ -19,7 +19,7 @@
     };
 
     function getContext(scope, values) {
-        var methodBody = "return " + values;
+        var methodBody = "with($root){with($data||{}){return " + values + "}}";;
         var value = new Function("$root", "$data", methodBody)(scope.$root, scope.$data);
         return value;
     };
