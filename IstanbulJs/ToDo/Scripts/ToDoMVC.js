@@ -85,9 +85,9 @@ var ViewModel = function () {
         return self.getCompletedCount() || self.remainingCount();
     });
 
-    self.bodyVisibility = ist.calculated([self.todos], function () {
-        return self.todos().length > 0;
-    });
+    //self.bodyVisibility = ist.calculated([self.todos], function () {
+    //    return self.todos().length > 0;
+    //});
 
     this.remove = function (todo) {
         self.todos.remove(todo);
@@ -129,18 +129,18 @@ var ViewModel = function () {
 };
 
 $(function () {
-    ist.handlerManager.register('key', {
-        init: function (element, scope, data) {
-            for (var i = 0; i < data.length; i++) {
-                (function (d) {
-                    element.on('keydown', scope, function (args) {
+    ist.handlerManager.key ={
+        init: function (element, args) {
+            for (var i = 0; i < args.value.length; i++) {
+                (function (d,scope) {
+                    element.on('keydown', args, function (args) {
                         if (args.keyCode == d.x)
                             d.handler({ data: scope.$data });
                     });
-                })(data[i]);
+                })(args.value[i],args.scope);
             }
         }
-    });
+    };
 
     var vm = new ViewModel();
     ist.bind(vm);

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>Istanbul.js • TodoMVC</title>
-    <script src="https://code.jquery.com/jquery-2.0.3.min.js"></script>
+    <script src="../../src/jquery-2.0.3.js"></script>
     <script src="../../src/istanbuljs-0.8.0.js"></script>
     <script src="../Scripts/ToDoMVC.js"></script>
     <link href="../Content/base.css" rel="stylesheet" />
@@ -14,7 +14,7 @@
             <h1>todos</h1>
             <input id="new-todo" data-bind-value="current" data-bind-key="[{handler: add, x:13}]" placeholder=" what needs to be done?" autofocus>
         </header>
-        <section id="main" data-bind-visible="bodyVisibility">
+        <section id="main" data-bind-visible="todos().length > 0">
             <input id="toggle-all" data-bind-checked="allCompleted" type="checkbox">
             <label for="toggle-all">Mark all as complete</label>
             <ul id="todo-list" data-bind-each="filteredTodos">
@@ -24,7 +24,7 @@
                         <label data-bind-text="title" data-bind-events="[{name:'dblclick', handler:editItem}]"></label>
                         <button class="destroy" data-bind-click="remove"></button>
                     </div>
-                    <input class="edit" data-bind-value="title" data-bind-key="[{handler: stopEditing, x:13}]" data-bind-events="[{name:'blur', handler:stopEditing, args:$data}]">
+                    <input class="edit" data-bind-value="title" data-bind-key="[{handler: stopEditing, x:13}]" data-bind-events="[{name:'blur', handler:stopEditing}]">
                 </li>
             </ul>
         </section>
