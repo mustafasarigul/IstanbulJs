@@ -12,6 +12,12 @@ var ViewModel = function () {
     this.mode = ist.property('all');
     this.editing = ist.property(false);
 
+    this.getCompletedCount = function () {
+        return self.todos().filter(function (todo) {
+            return todo.completed();
+        }).length;
+    }
+
     this.add = function () {
         var t = new Todo(self.current(), false);
         t.completed.watch(function () {
@@ -31,11 +37,13 @@ var ViewModel = function () {
         item.data.previousTitle = item.data.title();
     };
 
-    this.getCompletedCount = function () {
-        return self.todos().filter(function (todo) {
-            return todo.completed();
-        }).length;
-    }
+    this.completedCount = ist.calculated([self.todos], function () {
+        return self.getCompletedCount();
+    });
+
+    this.remainingCount = ist.calculated([self.todos, self.completedCount], function () {
+        return self.todos().length - self.completedCount();
+    });
 
     this.getFilteredTodos = function () {
         if (self.activeMode())
@@ -72,22 +80,6 @@ var ViewModel = function () {
             this.remove(item);
         }
     };
-
-    self.completedCount = ist.calculated([self.todos], function () {
-        return self.getCompletedCount();
-    });
-
-    self.remainingCount = ist.calculated([self.todos, self.completedCount], function () {
-        return self.todos().length - self.completedCount();
-    });
-
-    self.footerVisibility = ist.calculated([self.completedCount, self.remainingCount], function () {
-        return self.getCompletedCount() || self.remainingCount();
-    });
-
-    //self.bodyVisibility = ist.calculated([self.todos], function () {
-    //    return self.todos().length > 0;
-    //});
 
     this.remove = function (todo) {
         self.todos.remove(todo);

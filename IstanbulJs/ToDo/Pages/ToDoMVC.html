@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>Istanbul.js • TodoMVC</title>
-    <script src="../../src/jquery-2.0.3.js"></script>
+    <script src="https://code.jquery.com/jquery-2.0.3.min.js"></script>
     <script src="../../src/istanbuljs-0.8.0.js"></script>
     <script src="../Scripts/ToDoMVC.js"></script>
     <link href="../Content/base.css" rel="stylesheet" />
@@ -28,7 +28,7 @@
                 </li>
             </ul>
         </section>
-        <footer id="footer" data-bind-visible="footerVisibility">
+        <footer id="footer" data-bind-visible="todos().length > 0 ">
             <span id="todo-count">
                 <strong data-bind-text="remainingCount">0</strong> item(s) left
             </span>

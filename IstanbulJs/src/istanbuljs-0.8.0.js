@@ -57,8 +57,8 @@
         return funcs;
     }
 
-    function getWatchableDataItems(scope, bindingStatement,elementHandler) {
-        var dataItems = [], handler,value;
+    function getWatchableDataItems(scope, bindingStatement, elementHandler) {
+        var dataItems = [], handler, value;
         var statements = getWatchables(bindingStatement);
 
         for (var i = 0; i < statements.length; i++) {
@@ -70,7 +70,7 @@
                     if (ist.utils.isWatchable(value) && handler != elementHandler)
                         dataItems.push({ statement: statements[i], value: value });
                 }
-                catch(ex){}
+                catch (ex) { }
             }
             while (index > 0) {
                 statements[i] = statements[i].substring(0, index);
@@ -82,13 +82,13 @@
                     try {
                         handler = getBindingValue(statement);
                         value = handler(scope.$root, scope.$data);
-                        if (ist.utils.isWatchable(value) && handler!=elementHandler) {
+                        if (ist.utils.isWatchable(value) && handler != elementHandler) {
                             if (dataItems.filter(function (item) {
                                 return item.statement == statement;
                             }).length == 0)
                                 dataItems.push({ statement: statement, value: value });
                         }
-                    } catch (e) {} 
+                    } catch (e) { }
                 }
             }
         }
@@ -128,23 +128,6 @@
             currentNode = currentNode.nextSibling;
         }
     }
-
-    function createElementForEach(element, data, scope, templateId) {
-        var childElement;
-        if (data == null) return;
-        for (var d = 0; d < data.length; d++) {
-            childElement = $(ist.templateManager.get(templateId).content);
-            if (childElement == null) continue;
-
-            var dispose = data[d].status == 1;
-            findBindings(childElement[0], { $root: scope.$root, $data: data[d] }, dispose);
-
-            if (dispose)
-                childElement.remove();
-            else
-                element.append(childElement);
-        }
-    };
 
     function createElementForUsing(rootElement, childElement, scope, dispose) {
         childElement.remove();
@@ -211,12 +194,16 @@
     ist.handlerManager = {
         init: function (name, element, scope, bindingStatement, templateId) {
             var value = getBindingValue(bindingStatement);
-            var watchables = getWatchableDataItems(scope, bindingStatement,value);
+            var watchables = getWatchableDataItems(scope, bindingStatement, value);
             var args = { scope: scope, handler: value, value: value(scope.$root, scope.$data), watchables: watchables, templateId: templateId };
             ist.handlerManager[name].init($(element), args);
         },
-        dispose: function (name, element, scope, handler, bindingStatement, status) {
-            if (typeof ist.handlerManager[name].dispose != 'undefined') ist.handlerManager[name].dispose($(element), scope, scope != null ? getBindingValue(bindingStatement) : null, status);
+        dispose: function (name, element, scope, bindingStatement, status) {
+            if (typeof ist.handlerManager[name].dispose != 'undefined') {
+                var value = getBindingValue(bindingStatement);
+                var args = { scope: scope, handler: value, value: value(scope.$root, scope.$data), status: status };
+                ist.handlerManager[name].dispose($(element), args);
+            }
         }
     };
 
@@ -242,6 +229,63 @@
         dispose: function (element, args) {
             if (args.value != null) args.value.unWatch();
             element.empty();
+        }
+    };
+
+    ist.handlerManager.each = {
+        init: function (element, args) {
+            var oData = ist.utils.unwrapWatchable(args.value);
+            var childElement;
+
+            if (oData.length > 0)
+                createElementForEach(element, oData, args.scope, args.templateId);
+            if (Array.isArray(oData)) {
+                args.value.watch(function (data, oldValue, item) {
+                    if (!Array.isArray(data)) {//add or remove to array
+                        var dispose = data.$$status == 1;
+                        var id = data.$$id;
+                        if (dispose)
+                            childElement = element.find(ist.defaults.elementAttributeName + "='" + id + "']")
+                        else {
+                            childElement = $(ist.templateManager.get(args.templateId).content);
+                            if (childElement == null) return;
+                            childElement.attr(ist.defaults.elementAttributeName, id);
+                        }
+
+                        findBindings(childElement[0], { $root: args.scope.$root, $data: data }, dispose);
+
+                        if (dispose)
+                            childElement.remove();
+                        else
+                            element.append(childElement);
+                    }
+                    else {
+                        var children = element.children();
+                        for (var j = 0; j < children.length; j++) {
+                            var value = $(children[j]).attr(ist.defaults.elementAttributeName);
+                            if (data.filter(function (item) {
+                                return item.$$id == value;
+                            }).length == 0)
+                                $(children[j]).remove();
+                        }
+                        for (var k = 0; k < data.length; k++) {
+                            var index = data[k].$$id;
+                            if (element.find("[" + ist.defaults.elementAttributeName + "='" + index + "']").length == 0) {
+                                childElement = $(ist.templateManager.get(args.templateId).content).attr(ist.defaults.elementAttributeName, index);
+                                findBindings(childElement[0], { $root: args.scope.$root, $data: data[k] }, false);
+                                element.append(childElement);
+                            }
+                            var firstElement = $(element.children()[k]);
+                            var elementId = firstElement.attr(ist.defaults.elementAttributeName);
+
+                            if (index != elementId) {
+                                var secondElement = element.find("[" + ist.defaults.elementAttributeName + "='" + data[k].$$id + "']");
+                                secondElement.insertAfter(firstElement);
+                            }
+                        }
+                    }
+                });
+            }
         }
     };
 
@@ -276,13 +320,15 @@
             }));
 
             if (ist.utils.isWatchable(args.value))
-                args.value.watch(function (newValue, oldValue) {
-                    if (selfCall) {
-                        selfCall = false;
-                        return;
-                    }
-                    element.val(newValue);
-                }, 2);
+                (function (selfCall) {
+                    args.value.watch(function (newValue, oldValue) {
+                        if (selfCall) {
+                            selfCall = false;
+                            return;
+                        }
+                        element.val(newValue);
+                    }, 2);
+                })(selfCall)
         },
         dispose: function (element, args) {
             if (args.value != null) args.value.unWatch();
@@ -411,28 +457,6 @@
         }
     };
 
-    ist.handlerManager.each = {
-        init: function (element, args) {
-            var oData = ist.utils.unwrapWatchable(args.value);
-            if (oData.length > 0)
-                createElementForEach(element, oData, args.scope, args.templateId);
-            if (Array.isArray(oData)) {
-                args.value.watch(function (newValue, oldValue) {
-                    if (!Array.isArray(newValue))
-                        createElementForEach(element, [newValue], args.scope, args.templateId);
-                    else {
-                        var childs = element.children();
-                        if (childs.length > 0) {
-                            findBindings(childs, null, true);
-                            childs.remove();
-                        }
-                        createElementForEach(element, newValue, args.scope, args.templateId);
-                    }
-                });
-            }
-        }
-    };
-
     ist.utils = {
         unwrapWatchable: function (value) {
             return typeof value === "function" ? value() : value;
@@ -468,8 +492,8 @@
             if (this._subscribers.length == 0) return;
             $.each(this._subscribers, function () {
                 var retValue = this.event(newValue, oldValue);
-                if (this.type == 1)
-                    this.event.pub(retValue, oldValue);
+                if (this.type == 1)//calculated
+                    this.event.pub(retValue, oldValue, newValue);
             });
         }
     }
@@ -495,14 +519,15 @@
         }
         array.$t = 1;
         array.add = function (item) {
-            item[ist.defaults.elementAttributeName] = ++uniqueId;
+            item.$$id = ++uniqueId;
             this().push(item);
-            item.status = 0;
+            item.$$status = 0;
+            item.$$index = this().length - 1;
             this.pub(item, null);
         };
         array.remove = function (item) {
             var arr = this();
-            item.status = 1;
+            item.$$status = 1;
             arr.remove(item);
             this.pub(item, null);
         }
