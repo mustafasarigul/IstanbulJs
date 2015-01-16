@@ -292,10 +292,9 @@
     ist.handlerManager.text = {
         init: function (element, args) {
             element.text(ist.utils.unwrapWatchable(args.value));
-
             for (var i = 0; i < args.watchables.length; i++) {
                 args.watchables[i].value.watch(function (newValue, oldValue) {
-                    element.text(newValue);
+                    element.text(ist.utils.unwrapWatchable(args.handler(args.scope.$root, args.scope.$data)));
                 }, 2);
             }
 
@@ -432,23 +431,23 @@
     };
 
     ist.handlerManager.combobox = {
-        init: function (element, scope, data) {
-            var items = ist.utils.unwrapWatchable(data.source);
+        init: function (element, args) {
+            var items = ist.utils.unwrapWatchable(args.value.source);
 
-            if (data.caption)
-                element.append(new Option(ist.utils.unwrapWatchable(data.caption), null));
-            createComboItems(element, items, data.text);
+            if (args.value.caption)
+                element.append(new Option(ist.utils.unwrapWatchable(args.value.caption), null));
+            createComboItems(element, items, args.value.text);
 
-            if (ist.utils.isWatchable(data.source))
-                data.source.watch(function (newValue, oldValue) {
+            if (ist.utils.isWatchable(args.value.source))
+                args.value.source.watch(function (newValue, oldValue) {
                     element.empty();
-                    createComboItems(element, items, data.text);
+                    createComboItems(element, items, args.value.text);
                 }, 2);
 
-            if (ist.utils.isWatchable(data.value)) {
+            if (ist.utils.isWatchable(args.value.value)) {
                 element.change(function () {
                     var itemId = $(this).val();
-                    data.value(itemId == null ? null : items[itemId]);
+                    args.value.value(itemId == null ? null : items[itemId]);
                 });
             }
         },
