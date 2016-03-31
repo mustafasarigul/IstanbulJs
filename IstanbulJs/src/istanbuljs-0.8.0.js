@@ -129,6 +129,23 @@
         }
     }
 
+    function createElementForEach(element, data, scope, templateId) {
+        var childElement;
+        if (data == null) return;
+        for (var d = 0; d < data.length; d++) {
+            childElement = $(ist.templateManager.get(templateId).content);
+            if (childElement == null) continue;
+
+            var dispose = data[d].status == 1;
+            findBindings(childElement[0], { $root: scope.$root, $data: data[d] }, dispose);
+
+            if (dispose)
+                childElement.remove();
+            else
+                element.append(childElement);
+        }
+    };
+    
     function createElementForUsing(rootElement, childElement, scope, dispose) {
         childElement.remove();
         for (var i = 0; i < childElement.length; i++) {
