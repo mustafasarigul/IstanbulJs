@@ -1,4 +1,4 @@
-﻿(function () {
+(function () {
     window.ist = { defaults: { attributePrefix: 'data-bind-', changeEvent: 'keyup', elementAttributeName: 'ist_Id' } };
     var templates = [], uniqueId = 0, bindingCache = {};
 
@@ -145,7 +145,7 @@
                 element.append(childElement);
         }
     };
-    
+
     function createElementForUsing(rootElement, childElement, scope, dispose) {
         childElement.remove();
         for (var i = 0; i < childElement.length; i++) {
@@ -400,6 +400,29 @@
         }
     };
 
+    ist.handlerManager.class = {
+        init: function (element, args) {
+            var className = ist.utils.unwrapWatchable(args.value.value);
+
+            if (ist.utils.unwrapWatchable(args.value.condition))
+                element.addClass(className);
+            else
+                element.attr('class', '');
+
+            if (ist.utils.isWatchable(args.value.condition)) {
+                args.value.condition.watch(function (newValue, oldValue) {
+                    if (newValue)
+                        element.addClass(className);
+                    else
+                        element.attr('class','');
+                }, 2);
+            }
+        },
+        dispose: function (element, args) {
+            element.off();
+        }
+    };
+
     ist.handlerManager.checked = {
         init: function (element, args) {
             var selfCall = false;
@@ -458,13 +481,15 @@
             if (ist.utils.isWatchable(args.value.source))
                 args.value.source.watch(function (newValue, oldValue) {
                     element.empty();
-                    createComboItems(element, items, args.value.text);
+                    if (args.value.caption)
+                        element.append(new Option(ist.utils.unwrapWatchable(args.value.caption), null));
+                    createComboItems(element, newValue, args.value.text);
                 }, 2);
 
             if (ist.utils.isWatchable(args.value.value)) {
                 element.change(function () {
                     var itemId = $(this).val();
-                    args.value.value(itemId == null ? null : items[itemId]);
+                    args.value.value(itemId == null ? null : args.value.source()[itemId]);
                 });
             }
         },
